@@ -96,7 +96,9 @@ class Game extends React.Component {
               />
             ))}
         </View>
-        <Button title="Play Again" onPress={this.props.onPlayAgin} />
+        {this.gameStatus !== 'PLAYING' && (
+          <Button title="Play Again" onPress={this.props.onPlayAgain} />
+        )}
         <Text>{this.state.remainingSeconds}</Text>
       </View>
     );
