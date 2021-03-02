@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { View, Text, StyleSheet} from 'react-native';
+import { View, Text, Button, StyleSheet} from 'react-native';
 
 import RandomNumber from './RandomNumber';
-import shuffle from 'lodash.shuffle';
 
 class Game extends React.Component {
   static propTypes = {
     randomNumberCount: PropTypes.number.isRequired,
     initialSeconds: PropTypes.number.isRequired,
+    onPlayAgin: PropTypes.func.isRequired,
   };
   state = {
     selectedIds: [],
@@ -22,7 +22,6 @@ class Game extends React.Component {
   target = this.randomNumbers
     .slice(0, this.props.randomNumberCount - 2)
     .reduce((acc, curr) => acc + curr, 0);
-  shuffleRandomNumbers = shuffle(this.randomNumbers);
 
   componentDidMount() {
     this.intervalId = setInterval(() => {
@@ -56,10 +55,6 @@ class Game extends React.Component {
       nextState.remainingSeconds === 0
     ) {
       this.gameStatus = this.calcGameStatus(nextState);
-      // if this game status is not playing, clear the timer - win the game, clear the timer
-      if (this.gameStatus != 'PLAYING') {
-        clearInterval(this.intervalId);
-      }
     }
   }
   // gameStatus: PLAYING, WON, LOST
@@ -68,7 +63,7 @@ class Game extends React.Component {
     const sumSelected = nextState.selectedIds.reduce((acc, curr) => {
       return acc + this.randomNumbers[curr];
     }, 0);
-    if (nextState.shuffleRandomNumbers === 0) {
+    if (nextState.remainingSeconds === 0) {
       return 'LOST';
     }
     if (sumSelected < this.target) {
@@ -87,7 +82,7 @@ class Game extends React.Component {
         <View style={styles.container}>
           <Text style={[styles.target, styles[`STATUS_${gameStatus}`]]}>{this.target}</Text>
           <View style={styles.randomContainer}>
-            {this.shuffleRandomNumbers.map((randomNumber, index) => (
+            {this.randomNumbers.map((randomNumber, index) => (
               <RandomNumber
                 key={index} // can't access key as props inside the RandomNumber component
                 id={index} // props as id inside the component to represent this index
@@ -101,6 +96,7 @@ class Game extends React.Component {
               />
             ))}
         </View>
+        <Button title="Play Again" onPress={this.props.onPlayAgin} />
         <Text>{this.state.remainingSeconds}</Text>
       </View>
     );
